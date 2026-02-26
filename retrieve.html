@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Retrieve CQE</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f4f6f9;
+  margin:0;
+}
+
+.header {
+  background:#1f3c88;
+  color:white;
+  padding:15px 20px;
+  font-size:18px;
+}
+
+.container {
+  padding:30px;
+}
+
+.top-buttons button {
+  padding:8px 15px;
+  margin-right:10px;
+  border:none;
+  border-radius:5px;
+  background:#1f3c88;
+  color:white;
+  cursor:pointer;
+}
+
+.section-box {
+  background:white;
+  padding:20px;
+  margin-bottom:25px;
+  border-radius:8px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td {
+  border:1px solid #ddd;
+  padding:6px;
+}
+
+th {
+  background:#eef1f6;
+}
+
+input {
+  width:95%;
+  padding:5px;
+  background:#eee;
+  border:none;
+}
+
+select {
+  width:70px;
+  background:#eee;
+  pointer-events:none;
+}
+
+.score-panel {
+  background:white;
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+Article Quality Evaluation Form - Retrieved
+</div>
+
+<div class="container">
+
+<div class="top-buttons">
+<button onclick="window.location.href='index.html'">⬅ Menu</button>
+</div>
+
+<br>
+
+<div class="section-box">
+<table>
+<tr>
+<td>Evaluator:</td>
+<td><input id="evaluator" disabled></td>
+<td>Publisher Evaluated:</td>
+<td><input id="publisher" disabled></td>
+</tr>
+<tr>
+<td>Review Date:</td>
+<td><input type="date" id="reviewDate" disabled></td>
+<td>Article #:</td>
+<td><input id="articleNo" disabled></td>
+</tr>
+<tr>
+<td>Manager:</td>
+<td><input id="manager" disabled></td>
+<td>Publish Date:</td>
+<td><input type="date" id="publishDate" disabled></td>
+</tr>
+</table>
+</div>
+
+<div class="section-box">
+<table>
+<tr>
+<th>Weight</th>
+<th>Question</th>
+<th>Yes/No</th>
+</tr>
+
+<tbody id="questions"></tbody>
+
+</table>
+</div>
+
+<div class="score-panel">
+Content Accuracy: <span id="cat1">0</span>%<br>
+Readability & Formatting: <span id="cat2">0</span>%<br>
+Style & Consistency: <span id="cat3">0</span>%<br><br>
+OVERALL SCORE: <span id="total">0</span>% 
+</div>
+
+</div>
+
+<script>
+
+const data = [
+[8,"Title concise and SEO friendly?"],
+[8,"Applies To accurate?"],
+[3,"Meta keywords included?"],
+[14,"Instructions clear and complete?"],
+[7,"No duplicate content?"],
+[10,"No confidential info?"],
+
+[10,"Scannable and formatted?"],
+[8,"Clear and grammatically correct?"],
+[3,"Short paragraphs and headers?"],
+[5,"Correct template used?"],
+[5,"Correct font formatting?"],
+[2,"Tables formatted properly?"],
+[2,"Attachments included?"],
+[5,"Screenshots enhance clarity?"],
+[1,"Hyperlinks correct?"],
+
+[3,"Title follows MS Style?"],
+[3,"Long product name used?"],
+[1,"Date formatted correctly?"],
+[2,"HCLSoftware spelled correctly?"]
+];
+
+const tbody = document.getElementById("questions");
+
+// create readonly select fields
+data.forEach((row,i)=>{
+  tbody.innerHTML += `
+  <tr>
+    <td>${row[0]}</td>
+    <td>${row[1]}</td>
+    <td>
+      <select class="ans" disabled>
+        <option></option>
+        <option>Y</option>
+        <option>N</option>
+      </select>
+    </td>
+  </tr>`;
+});
+
+const selects = document.querySelectorAll(".ans");
+
+// load saved data
+const saved = JSON.parse(localStorage.getItem("cqeData"));
+if(saved){
+  document.getElementById("evaluator").value = saved.evaluator;
+  document.getElementById("publisher").value = saved.publisher;
+  document.getElementById("reviewDate").value = saved.reviewDate;
+  document.getElementById("articleNo").value = saved.articleNo;
+  document.getElementById("manager").value = saved.manager;
+  document.getElementById("publishDate").value = saved.publishDate;
+
+  saved.answers.forEach((v,i)=>{
+    selects[i].value = v;
+  });
+  calculate();
+} else {
+  alert("No saved data found.");
+}
+
+function calculate(){
+  let total=0, cat1=0, cat2=0, cat3=0;
+
+  selects.forEach((sel,index)=>{
+    let weight = data[index][0];
+    if(sel.value==="Y"){
+      total += weight;
+      if(index<=5) cat1+=weight;
+      else if(index<=14) cat2+=weight;
+      else cat3+=weight;
+    }
+  });
+
+  document.getElementById("cat1").innerText = cat1;
+  document.getElementById("cat2").innerText = cat2;
+  document.getElementById("cat3").innerText = cat3;
+  document.getElementById("total").innerText = total;
+}
+
+</script>
+
+</body>
+</html>

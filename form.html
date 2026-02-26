@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Article Quality Evaluation Form</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f4f6f9; margin:0; }
+.header { background:#1f3c88; color:white; padding:15px 20px; font-size:18px; font-weight:bold; }
+.container { padding:30px; }
+.top-buttons button { padding:8px 15px; margin-right:10px; border:none; border-radius:5px; background:#1f3c88; color:white; cursor:pointer; }
+.section-box { background:white; padding:20px; margin-bottom:25px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+table { width:100%; border-collapse:collapse; }
+th, td { border:1px solid #ddd; padding:6px; }
+th { background:#eef1f6; }
+input { width:95%; padding:5px; }
+select { width:70px; }
+.score-panel { background:white; padding:20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="header">Article Quality Evaluation Form</div>
+
+<div class="container">
+<div class="top-buttons">
+<button onclick="window.location.href='index.html'">⬅ Menu</button>
+<button onclick="saveData()">💾 Save</button>
+</div>
+
+<div class="section-box">
+<table>
+<tr>
+<td>Evaluator:</td><td><input id="evaluator"></td>
+<td>Publisher Evaluated:</td><td><input id="publisher"></td>
+</tr>
+<tr>
+<td>Review Date:</td><td><input type="date" id="reviewDate"></td>
+<td>Article #:</td><td><input id="articleNo"></td>
+</tr>
+<tr>
+<td>Manager:</td><td><input id="manager"></td>
+<td>Publish Date:</td><td><input type="date" id="publishDate"></td>
+</tr>
+</table>
+</div>
+
+<div class="section-box">
+<table>
+<tr><th>Weight</th><th>Question</th><th>Yes/No</th></tr>
+<tbody id="questions"></tbody>
+</table>
+</div>
+
+<div class="score-panel">
+Content Accuracy: <span id="cat1">0</span>%<br>
+Readability & Formatting: <span id="cat2">0</span>%<br>
+Style & Consistency: <span id="cat3">0</span>%<br><br>
+OVERALL SCORE: <span id="total">0</span>% 
+</div>
+</div>
+
+<script>
+// ----- Question data [weight, question text] -----
+const data = [
+[8,"Is the title concise, SEO-friendly, and includes a unique error snippet for troubleshooting?"],
+[8,"Is the “Applies To” field accurately completed with product/version/OS?"],
+[3,"Are relevant meta keywords included?"],
+[14,"Are the instructions clear, actionable, and easy to understand, covering the issue, its cause, and the resolution or answer?"],
+[7,"Has the publisher checked for duplicate content and linked related articles where appropriate?"],
+[10,"Does the article avoid including client or HCL confidential information?"],
+[10,"Is the content scannable, understandable, and properly formatted with lists and steps?"],
+[8,"Is the writing clear, concise, and grammatically correct?"],
+[3,"Are paragraphs short and headers used appropriately?"],
+[5,"Did the publisher check if the correct article template was used?"],
+[5,"Is the font and formatting correct (Verdana for text, Courier for code) with proper indentation and minimal use of text boxes, banners, or callouts?"],
+[2,"Are tables simple, readable, and properly formatted?"],
+[2,"Are attachments included and downloadable?"],
+[5,"Would relevant screenshots further enhance clarity or reduce possible confusion? If screenshot/s are included, are they used correctly with text included, borders applied, and properly indented?"],
+[1,"Do hyperlinks open in a new tab and are related links included?"],
+[3,"Does the article title follow Microsoft Manual of Style?"],
+[3,"Is the long product name used at least once, with acronyms defined?"],
+[1,"Are dates formatted correctly (e.g., June 31, 2022)?"],
+[2,"Is “HCLSoftware” spelled correctly and consistently?"]
+];
+
+const tbody = document.getElementById("questions");
+data.forEach((row)=>{
+  tbody.innerHTML += `<tr>
+    <td>${row[0]}</td>
+    <td>${row[1]}</td>
+    <td>
+      <select class="ans">
+        <option></option>
+        <option>Y</option>
+        <option>N</option>
+      </select>
+    </td>
+  </tr>`;
+});
+
+const selects = document.querySelectorAll(".ans");
+selects.forEach(sel => sel.addEventListener("change", calculate));
+
+function calculate(){
+  let total=0, cat1=0, cat2=0, cat3=0;
+  selects.forEach((sel,index)=>{
+    let weight = data[index][0];
+    if(sel.value==="Y"){
+      total += weight;
+      if(index<=5) cat1+=weight;
+      else if(index<=14) cat2+=weight;
+      else cat3+=weight;
+    }
+  });
+  document.getElementById("cat1").innerText = cat1;
+  document.getElementById("cat2").innerText = cat2;
+  document.getElementById("cat3").innerText = cat3;
+  document.getElementById("total").innerText = total;
+}
+
+// ----- Save to Google Sheets -----
+const passThreshold = 92;
+async function saveData() {
+  const record = {
+    evaluator: document.getElementById("evaluator").value,
+    articleNo: document.getElementById("articleNo").value,
+    publisher: document.getElementById("publisher").value,
+    manager: document.getElementById("manager").value,
+    reviewDate: document.getElementById("reviewDate").value,
+    publishDate: document.getElementById("publishDate").value,
+    answers: Array.from(document.querySelectorAll(".ans")).map(s => s.value),
+    cat1: parseInt(document.getElementById("cat1").innerText),
+    cat2: parseInt(document.getElementById("cat2").innerText),
+    cat3: parseInt(document.getElementById("cat3").innerText),
+    total: parseInt(document.getElementById("total").innerText),
+    passFail: parseInt(document.getElementById("total").innerText) >= passThreshold ? "Pass" : "Fail"
+  };
+
+  try {
+    const res = await fetch(
+      "https://script.google.com/a/macros/hcl-software.com/s/AKfycbyBLuT2sNQy4j3wzsUOhSc6VXpYChk5mf0Zg8giKd2Ee8imnKPHKFHQrHZmN3Qnods/exec",
+      {
+        method: "POST",
+        body: JSON.stringify({ row: Object.values(record) })
+      }
+    );
+    const data = await res.json();
+    if(data.status === "success") {
+      alert("Saved to Google Sheets!");
+    } else {
+      alert("Error: " + (data.message || "Unknown error"));
+    }
+  } catch(err) {
+    alert("Error saving: " + err);
+  }
+}
+</script>
+
+</body>
+</html>
