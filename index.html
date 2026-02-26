@@ -58,6 +58,33 @@ Article Quality Evaluation Form
 <button class="menu-button" onclick="window.location.href='retrieve.html'">📄 Retrieve Evaluation</button>
 <button class="menu-button" onclick="window.location.href='version.html'">ℹ Version Info</button>
 </div>
+<script>
+const scriptURL = "https://script.google.com/a/macros/hcl-software.com/s/AKfycbwpyaW9TngAe2MmHJ8Ja3rk6XbrAxLXQagv-BcSQqBoqMqN2MmbdwtmsYDVQR7LZcYafA/exec";
 
+document.getElementById("myForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  
+  const formData = {
+    name: this.name.value,
+    email: this.email.value,
+    score: this.score.value
+  };
+
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify(formData),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert("Saved successfully!");
+    this.reset();
+  })
+  .catch(error => alert("Error saving data"));
+});
+</script>
+  
 </body>
 </html>
