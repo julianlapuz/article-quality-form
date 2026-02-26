@@ -1,97 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Article Quality Evaluation Form - Menu</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background:#f4f6f9;
-  margin:0;
-}
-
-.header {
-  background:#1f3c88;
-  color:white;
-  padding:20px;
-  font-size:20px;
-  font-weight:bold;
-  text-align:center;
-}
-
-.container {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  padding-top:80px;
-}
-
-.menu-button {
-  width:220px;
-  padding:15px 0;
-  margin:15px;
-  font-size:16px;
-  font-weight:bold;
-  border:none;
-  border-radius:8px;
-  background:#1f3c88;
-  color:white;
-  cursor:pointer;
-  box-shadow:0 4px 12px rgba(0,0,0,0.1);
-  transition:0.2s;
-}
-
-.menu-button:hover {
-  background:#162f6c;
-  transform:scale(1.05);
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Article Evaluation Form</title>
 </head>
 <body>
+  <h1>Article Quality Evaluation</h1>
 
   <form action="https://script.google.com/macros/s/AKfycbyJgOgdraS6MAZzSdqNBe7LyPGSr1qzoPqG0XzKGB6owZcibB1D71U_OWi7nWFGVgvHgA/exec" method="POST">
-  <input type="text" name="name" placeholder="Name" required>
-  <input type="email" name="email" placeholder="Email" required>
-  <textarea name="comment" placeholder="Comment"></textarea>
-  <button type="submit">Submit</button>
-</form>
-  
-<div class="header">
-Article Quality Evaluation Form
-</div>
+    <input type="text" name="Evaluator" placeholder="Evaluator" required><br>
+    <input type="text" name="ArticleNumber" placeholder="Article #" required><br>
+    <input type="text" name="Publisher" placeholder="Publisher Evaluated"><br>
+    <input type="text" name="Manager" placeholder="Manager"><br>
+    <input type="date" name="ReviewDate"><br>
+    <input type="date" name="PublishDate"><br>
 
-<div class="container">
-<button class="menu-button" onclick="window.location.href='form.html'">📝 Case Form</button>
-<button class="menu-button" onclick="window.location.href='retrieve.html'">📄 Retrieve Evaluation</button>
-<button class="menu-button" onclick="window.location.href='version.html'">ℹ Version Info</button>
-</div>
-<script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbxmcY10epj_ncCC_c-1cCd-_DElxosBaDRAzV74zNoPRbtBYxmWquUuPpWsjqybAnnd/exec";
+    <p>Is the title concise, SEO-friendly, and includes a unique error snippet?</p>
+    <label><input type="radio" name="TitleConcise" value="Yes" required> Yes</label>
+    <label><input type="radio" name="TitleConcise" value="No"> No</label><br>
 
-document.getElementById("myForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  
-  const formData = {
-    name: this.name.value,
-    email: this.email.value,
-    score: this.score.value
-  };
+    <p>Is the “Applies To” field accurately completed?</p>
+    <label><input type="radio" name="AppliesTo" value="Yes" required> Yes</label>
+    <label><input type="radio" name="AppliesTo" value="No"> No</label><br>
 
-  fetch(scriptURL, {
-    method: "POST",
-    body: JSON.stringify(formData),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    alert("Saved successfully!");
-    this.reset();
-  })
-  .catch(error => alert("Error saving data"));
-});
-</script>
-  
+    <p>Are relevant meta keywords included?</p>
+    <label><input type="radio" name="MetaKeywords" value="Yes" required> Yes</label>
+    <label><input type="radio" name="MetaKeywords" value="No"> No</label><br>
+
+    <p>Are instructions clear and actionable?</p>
+    <label><input type="radio" name="InstructionsClear" value="Yes" required> Yes</label>
+    <label><input type="radio" name="InstructionsClear" value="No"> No</label><br>
+
+    <p>Has the publisher checked for duplicate content?</p>
+    <label><input type="radio" name="DuplicateChecked" value="Yes" required> Yes</label>
+    <label><input type="radio" name="DuplicateChecked" value="No"> No</label><br>
+
+    <p>Does the article avoid including confidential information?</p>
+    <label><input type="radio" name="ConfidentialInfo" value="Yes" required> Yes</label>
+    <label><input type="radio" name="ConfidentialInfo" value="No"> No</label><br>
+
+    <!-- Repeat for remaining questions -->
+    <input type="text" name="OverallScore" placeholder="Overall Score"><br>
+
+    <button type="submit">Submit</button>
+  </form>
 </body>
 </html>
